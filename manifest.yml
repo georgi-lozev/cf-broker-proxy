@@ -1,0 +1,8 @@
+applications:
+- name: cf-broker-proxy
+  instances: 1
+  memory: 512M
+  disk_quota: 512M
+  env:
+    CF_HOME: .
+    GOPACKAGENAME: github.com/georgi-lozev/cf-broker-proxy
