@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv2"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv2/constant"
@@ -38,6 +39,8 @@ type CFBrokerProxy struct {
 	SpaceGUID        string
 }
 
+var charsToReplace = []string{" ", "_", "&", ":", "|"}
+
 func (broker *CFBrokerProxy) Services(context context.Context) ([]brokerapi.Service, error) {
 	if broker.Catalog != nil {
 		return broker.Catalog, nil
@@ -56,7 +59,7 @@ func (broker *CFBrokerProxy) Services(context context.Context) ([]brokerapi.Serv
 
 		service := brokerapi.Service{
 			ID:            s.GUID,
-			Name:          s.Label,
+			Name:          normalizeName(s.Label),
 			Description:   sliceDescription(s.Description),
 			Bindable:      true,
 			PlanUpdatable: false,
@@ -194,7 +197,7 @@ func (broker *CFBrokerProxy) getServicePlans(serviceGUID string) []brokerapi.Ser
 
 		plan := brokerapi.ServicePlan{
 			ID:          p.GUID,
-			Name:        p.Name,
+			Name:        normalizeName(p.Name),
 			Description: sliceDescription(p.Description),
 		}
 		plans = append(plans, plan)
@@ -209,4 +212,14 @@ func sliceDescription(original string) string {
 	}
 
 	return original
+}
+
+func normalizeName(original string) string {
+	result := original
+
+	for _, c := range charsToReplace {
+		result = strings.Replace(result, c, "-", -1)
+	}
+
+	return result
 }
