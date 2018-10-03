@@ -55,17 +55,19 @@ func (broker *CFBrokerProxy) Services(context context.Context) ([]brokerapi.Serv
 	serviceList := []brokerapi.Service{}
 
 	for _, s := range services {
-		planList := broker.getServicePlans(s.GUID)
+		if contains(s.Tags, "watson") {
+			planList := broker.getServicePlans(s.GUID)
 
-		service := brokerapi.Service{
-			ID:            s.GUID,
-			Name:          normalizeName(s.Label),
-			Description:   sliceDescription(s.Description),
-			Bindable:      true,
-			PlanUpdatable: false,
-			Plans:         planList,
+			service := brokerapi.Service{
+				ID:            s.GUID,
+				Name:          normalizeName(s.Label),
+				Description:   sliceDescription(s.Description),
+				Bindable:      true,
+				PlanUpdatable: false,
+				Plans:         planList,
+			}
+			serviceList = append(serviceList, service)
 		}
-		serviceList = append(serviceList, service)
 	}
 	broker.Catalog = serviceList
 	return serviceList, nil
@@ -222,4 +224,13 @@ func normalizeName(original string) string {
 	}
 
 	return result
+}
+
+func contains(list []string, elem string) bool {
+	for _, e := range list {
+		if elem == e {
+			return true
+		}
+	}
+	return false
 }

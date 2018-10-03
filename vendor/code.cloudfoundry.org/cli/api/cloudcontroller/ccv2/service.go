@@ -21,6 +21,8 @@ type Service struct {
 	DocumentationURL string
 	// Extra is a field with extra data pertaining to the service.
 	Extra ServiceExtra
+	// A list of tags for the service.
+	Tags []string
 }
 
 // UnmarshalJSON helps unmarshal a Cloud Controller Service response.
@@ -28,10 +30,11 @@ func (service *Service) UnmarshalJSON(data []byte) error {
 	var ccService struct {
 		Metadata internal.Metadata
 		Entity   struct {
-			Label            string `json:"label"`
-			Description      string `json:"description"`
-			DocumentationURL string `json:"documentation_url"`
-			Extra            string `json:"extra"`
+			Label            string   `json:"label"`
+			Description      string   `json:"description"`
+			DocumentationURL string   `json:"documentation_url"`
+			Extra            string   `json:"extra"`
+			Tags             []string `json:"tags"`
 		}
 	}
 
@@ -44,6 +47,7 @@ func (service *Service) UnmarshalJSON(data []byte) error {
 	service.Label = ccService.Entity.Label
 	service.Description = ccService.Entity.Description
 	service.DocumentationURL = ccService.Entity.DocumentationURL
+	service.Tags = ccService.Entity.Tags
 
 	// We explicitly unmarshal the Extra field to type string because CC returns
 	// a stringified JSON object ONLY for the 'extra' key (see test stub JSON
